@@ -32,9 +32,9 @@ class PromoCodeRuleFactory
                 'min_purchase_amount' => new MinPurchaseAmountRule((float) $params['minAmount']),
                 'eligible_categories' => new EligibleCategoriesRule((array) $params['eligibleCategoryIds']),
                 'first_order_only'    => new FirstOrderOnlyRule(),
-                'user_usage_limit'    => new UserUsageLimitRule((int) $params['limit'], $this->repository),
-                'global_usage_limit'  => new GlobalUsageLimitRule((int) $params['limit'], $this->repository),
-                'global_amount_limit' => new GlobalAmountLimitRule((float) $params['limit'], $this->repository),
+                'user_usage_limit'    => new UserUsageLimitRule((int) $params['limit']),
+                'global_usage_limit'  => new GlobalUsageLimitRule((int) $params['limit']),
+                'global_amount_limit' => new GlobalAmountLimitRule((float) $params['limit']),
                 'restricted_usage'    => new RestrictedUsageRule($this->repository),
                 default => throw new \InvalidArgumentException("Regla desconocida: $ruleKey"),
             };

@@ -3,7 +3,6 @@
 namespace App\Domain\Rules\Configurable;
 
 use App\Domain\Contracts\OrderableInterface;
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\Contracts\RuleSpecificationInterface;
 use App\Domain\Entities\PromoCode;
 use App\Domain\ValueObjects\ValidationResult;
@@ -11,17 +10,13 @@ use App\Domain\ValueObjects\ValidationResult;
 class UserUsageLimitRule implements RuleSpecificationInterface
 {
     public function __construct(
-        private readonly int $limit,
-        private readonly PromoCodeRepositoryInterface $repository
+        private readonly int $limit
     ) {
     }
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
-        $userId = $order->getOrderContext()->buyerProfile->id;
-        $excludeOrderIds = $order->getOrderContext()->currentOrders;
-
-        $count = $this->repository->countUserUsages($code->code, $userId, $excludeOrderIds);
+        $count = $order->getOrderContext()->buyerProfile->paidPromoCodeUsages;
 
         if ($count >= $this->limit) {
             return ValidationResult::invalid('usage_limit_reached');

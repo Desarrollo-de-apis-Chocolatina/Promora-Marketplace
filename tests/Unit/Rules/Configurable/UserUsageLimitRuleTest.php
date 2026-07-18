@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Rules\Configurable;
 
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\Rules\Configurable\UserUsageLimitRule;
 use PHPUnit\Framework\TestCase;
 use Tests\Factories\BuyerProfileBuilder;
@@ -14,13 +13,10 @@ class UserUsageLimitRuleTest extends TestCase
 {
     public function test_it_blocks_when_user_usage_limit_is_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('countUserUsages')->willReturn(3);
-
-        $rule = new UserUsageLimitRule(3, $repository);
+        $rule = new UserUsageLimitRule(3);
         $code = (new PromoCodeBuilder())->build();
         
-        $buyer = (new BuyerProfileBuilder())->withId(10)->build();
+        $buyer = (new BuyerProfileBuilder())->withId(10)->withPaidPromoCodeUsages(3)->build();
         $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 
@@ -32,13 +28,10 @@ class UserUsageLimitRuleTest extends TestCase
 
     public function test_it_allows_when_user_usage_limit_is_not_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('countUserUsages')->willReturn(2);
-
-        $rule = new UserUsageLimitRule(3, $repository);
+        $rule = new UserUsageLimitRule(3);
         $code = (new PromoCodeBuilder())->build();
         
-        $buyer = (new BuyerProfileBuilder())->withId(10)->build();
+        $buyer = (new BuyerProfileBuilder())->withId(10)->withPaidPromoCodeUsages(2)->build();
         $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 

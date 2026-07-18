@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Rules\Configurable;
 
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\Rules\Configurable\GlobalUsageLimitRule;
 use PHPUnit\Framework\TestCase;
 use Tests\Factories\OrderContextBuilder;
@@ -13,12 +12,9 @@ class GlobalUsageLimitRuleTest extends TestCase
 {
     public function test_it_blocks_when_global_usage_limit_is_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('countGlobalUsages')->willReturn(100);
-
-        $rule = new GlobalUsageLimitRule(100, $repository);
+        $rule = new GlobalUsageLimitRule(100);
         $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $context = (new OrderContextBuilder())->withGlobalPaidUsages(100)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -29,12 +25,9 @@ class GlobalUsageLimitRuleTest extends TestCase
 
     public function test_it_allows_when_global_usage_limit_is_not_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('countGlobalUsages')->willReturn(99);
-
-        $rule = new GlobalUsageLimitRule(100, $repository);
+        $rule = new GlobalUsageLimitRule(100);
         $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $context = (new OrderContextBuilder())->withGlobalPaidUsages(99)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);

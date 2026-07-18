@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Rules\Configurable;
 
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\Rules\Configurable\GlobalAmountLimitRule;
 use PHPUnit\Framework\TestCase;
 use Tests\Factories\OrderContextBuilder;
@@ -13,12 +12,9 @@ class GlobalAmountLimitRuleTest extends TestCase
 {
     public function test_it_blocks_when_global_amount_limit_is_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('getGlobalAmountDiscounted')->willReturn(1000.0);
-
-        $rule = new GlobalAmountLimitRule(1000.0, $repository);
+        $rule = new GlobalAmountLimitRule(1000.0);
         $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $context = (new OrderContextBuilder())->withGlobalDiscountAmount(1000.0)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -29,12 +25,9 @@ class GlobalAmountLimitRuleTest extends TestCase
 
     public function test_it_allows_when_global_amount_limit_is_not_reached()
     {
-        $repository = $this->createMock(PromoCodeRepositoryInterface::class);
-        $repository->method('getGlobalAmountDiscounted')->willReturn(999.0);
-
-        $rule = new GlobalAmountLimitRule(1000.0, $repository);
+        $rule = new GlobalAmountLimitRule(1000.0);
         $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $context = (new OrderContextBuilder())->withGlobalDiscountAmount(999.0)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);

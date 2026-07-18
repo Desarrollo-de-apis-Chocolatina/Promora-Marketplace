@@ -10,7 +10,7 @@ use App\Domain\ValueObjects\ValidationResult;
 class EligibleCategoriesRule implements RuleSpecificationInterface
 {
     /**
-     * @param array<int> $eligibleCategoryIds
+     * @param array<int|string> $eligibleCategoryIds
      */
     public function __construct(
         private readonly array $eligibleCategoryIds
@@ -19,9 +19,21 @@ class EligibleCategoriesRule implements RuleSpecificationInterface
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
-        $categoryId = $order->getOrderContext()->categoryId;
+        $context = $order->getOrderContext();
+        $categoryId = $context->categoryId;
+        $ancestors = $context->categoryAncestors;
 
-        if ($categoryId === null || !in_array($categoryId, $this->eligibleCategoryIds, true)) {
+        $allOrderCategories = array_merge([$categoryId], $ancestors);
+        $isEligible = false;
+
+        foreach ($allOrderCategories as $catId) {
+            if (in_array($catId, $this->eligibleCategoryIds, true) || in_array((string)$catId, $this->eligibleCategoryIds, true) || in_array((int)$catId, $this->eligibleCategoryIds, true)) {
+                $isEligible = true;
+                break;
+            }
+        }
+
+        if (!$isEligible) {
             return ValidationResult::invalid('invalid_code');
         }
 

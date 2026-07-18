@@ -6,12 +6,26 @@ use App\Domain\ValueObjects\BuyerProfile;
 
 class BuyerProfileBuilder
 {
-    private int $id = 1;
+    private string|int $buyerId = 1;
+    private int $completedOrdersCount = 0;
+    private int $paidPromoCodeUsages = 0;
     private bool $isFirstOrder = false;
 
-    public function withId(int $id): self
+    public function withId(string|int $buyerId): self
     {
-        $this->id = $id;
+        $this->buyerId = $buyerId;
+        return $this;
+    }
+
+    public function withCompletedOrders(int $count): self
+    {
+        $this->completedOrdersCount = $count;
+        return $this;
+    }
+
+    public function withPaidPromoCodeUsages(int $usages): self
+    {
+        $this->paidPromoCodeUsages = $usages;
         return $this;
     }
 
@@ -24,7 +38,9 @@ class BuyerProfileBuilder
     public function build(): BuyerProfile
     {
         return new BuyerProfile(
-            $this->id,
+            $this->buyerId,
+            $this->completedOrdersCount,
+            $this->paidPromoCodeUsages,
             $this->isFirstOrder
         );
     }
