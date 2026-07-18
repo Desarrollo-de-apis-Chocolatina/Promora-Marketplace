@@ -1,0 +1,15 @@
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Laravel & PHP
+.phpunit.result.cache
+.env
+.env.backup
+.env.*
+
+# IDEs
+/.idea
+/.vscode
+*.swp
