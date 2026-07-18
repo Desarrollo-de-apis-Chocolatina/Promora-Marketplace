@@ -18,8 +18,6 @@ final readonly class OrderContext
     public int $globalPaidUsages;
     public float $globalDiscountAmount;
     /**
-     * Órdenes actualmente en proceso (p. ej. carrito con múltiples ítems),
-     * para excluirlas de los conteos históricos y evitar falsos positivos (TDR §4).
      * @var array<mixed>
      */
     public array $currentOrders;
@@ -47,6 +45,7 @@ final readonly class OrderContext
         array $currentOrders = []
     ) {
         $this->orderId = $orderId;
+        $this->currentOrders = $currentOrders;
         // Evitamos excepciones técnicas y mantenemos la coherencia del dominio
         $this->subtotal = max(0.0, $subtotal);
         $this->categoryId = $categoryId;
@@ -55,6 +54,5 @@ final readonly class OrderContext
         $this->paidPromoCodeUsages = max(0, $paidPromoCodeUsages);
         $this->globalPaidUsages = max(0, $globalPaidUsages);
         $this->globalDiscountAmount = max(0.0, $globalDiscountAmount);
-        $this->currentOrders = $currentOrders;
     }
 }
