@@ -17,6 +17,10 @@ final readonly class OrderContext
     public int $paidPromoCodeUsages;
     public int $globalPaidUsages;
     public float $globalDiscountAmount;
+    /**
+     * @var array<mixed>
+     */
+    public array $currentOrders;
 
     /**
      * @param string|int $orderId
@@ -27,6 +31,7 @@ final readonly class OrderContext
      * @param int $paidPromoCodeUsages
      * @param int $globalPaidUsages
      * @param float $globalDiscountAmount
+     * @param array<mixed> $currentOrders
      */
     public function __construct(
         string|int $orderId,
@@ -36,9 +41,11 @@ final readonly class OrderContext
         BuyerProfile $buyerProfile,
         int $paidPromoCodeUsages = 0,
         int $globalPaidUsages = 0,
-        float $globalDiscountAmount = 0.0
+        float $globalDiscountAmount = 0.0,
+        array $currentOrders = []
     ) {
         $this->orderId = $orderId;
+        $this->currentOrders = $currentOrders;
         // Evitamos excepciones técnicas y mantenemos la coherencia del dominio
         $this->subtotal = max(0.0, $subtotal);
         $this->categoryId = $categoryId;

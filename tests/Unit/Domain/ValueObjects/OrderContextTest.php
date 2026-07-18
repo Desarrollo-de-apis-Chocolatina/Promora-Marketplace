@@ -22,7 +22,8 @@ class OrderContextTest extends TestCase
             buyerProfile: $buyerProfile,
             paidPromoCodeUsages: 1,
             globalPaidUsages: 100,
-            globalDiscountAmount: 500.0
+            globalDiscountAmount: 500.0,
+            currentOrders: ['ORD-999', 'ORD-888']
         );
 
         $this->assertEquals('ORD-001', $context->orderId);
@@ -33,6 +34,7 @@ class OrderContextTest extends TestCase
         $this->assertEquals(1, $context->paidPromoCodeUsages);
         $this->assertEquals(100, $context->globalPaidUsages);
         $this->assertEquals(500.0, $context->globalDiscountAmount);
+        $this->assertEquals(['ORD-999', 'ORD-888'], $context->currentOrders);
     }
 
     public function test_it_coerces_negative_values_to_zero_to_keep_domain_coherence(): void
@@ -57,6 +59,7 @@ class OrderContextTest extends TestCase
         $this->assertEquals(0, $context->paidPromoCodeUsages);
         $this->assertEquals(0, $context->globalPaidUsages);
         $this->assertEquals(0.0, $context->globalDiscountAmount);
+        $this->assertEquals([], $context->currentOrders);
     }
 
     public function test_it_uses_default_values_when_not_provided(): void
@@ -78,5 +81,6 @@ class OrderContextTest extends TestCase
         $this->assertEquals(0, $context->paidPromoCodeUsages);
         $this->assertEquals(0, $context->globalPaidUsages);
         $this->assertEquals(0.0, $context->globalDiscountAmount);
+        $this->assertEquals([], $context->currentOrders);
     }
 }
