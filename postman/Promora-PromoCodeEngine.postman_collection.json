@@ -1,0 +1,502 @@
+{
+  "info": {
+    "name": "Promora Marketplace - PromoCodeEngine",
+    "description": "Flujo de demostración del PromoCodeEngine (RF-01 a RF-07): crea códigos promocionales con distintas estrategias de descuento y reglas configurables, y luego valida esos códigos contra órdenes de ejemplo, cubriendo tanto los casos exitosos como los errores semánticos definidos en el ASD.\n\nRequisitos antes de correr la colección:\n1. `php artisan migrate:fresh --seed` (deja creados la categoría y los dos compradores de referencia).\n2. `php artisan serve` (o ajustar la variable `base_url`).\n3. Correr las carpetas EN ORDEN: primero \"1. Crear códigos promocionales\" (deja los códigos guardados en variables de colección), luego \"2. Validar - casos exitosos\" y \"3. Validar - casos de error\".\n\nSi tu seed generó IDs distintos a 1/1/2, ajusta `category_id`, `buyer_new_id` y `buyer_frequent_id` en las variables de la colección (el seeder los imprime en consola).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "category_id", "value": "1" },
+    { "key": "buyer_new_id", "value": "1" },
+    { "key": "buyer_frequent_id", "value": "2" },
+    { "key": "code_fixed", "value": "" },
+    { "key": "code_percent", "value": "" },
+    { "key": "code_tiered", "value": "" },
+    { "key": "code_restricted", "value": "" },
+    { "key": "code_capped", "value": "" },
+    { "key": "code_draft", "value": "" },
+    { "key": "code_expired", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Crear códigos promocionales",
+      "item": [
+        {
+          "name": "1.1 Crear código FIXED (activo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"FIXED10-{{$timestamp}}\",\n  \"discount_type\": \"fixed\",\n  \"discount_value\": 10,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('discount_type es fixed', () => pm.expect(json.discount_type).to.eql('fixed'));",
+                  "pm.collectionVariables.set('code_fixed', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.2 Crear código PERCENT con min_purchase_amount",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"PERCENT20-{{$timestamp}}\",\n  \"discount_type\": \"percent\",\n  \"discount_value\": 20,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\",\n  \"rules\": [\n    { \"rule_type\": \"min_purchase_amount\", \"parameters\": { \"minAmount\": 50 } }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('code_percent', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.3 Crear código TIERED (por historial de compras)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"TIERED-{{$timestamp}}\",\n  \"discount_type\": \"tiered\",\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\",\n  \"tiers\": [\n    { \"min_completed_orders\": 0, \"discount_percent\": 5 },\n    { \"min_completed_orders\": 3, \"discount_percent\": 10 },\n    { \"min_completed_orders\": 10, \"discount_percent\": 15 }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('code_tiered', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.4 Crear código restringido a compradores VIP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VIPONLY-{{$timestamp}}\",\n  \"discount_type\": \"percent\",\n  \"discount_value\": 15,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\",\n  \"rules\": [\n    { \"rule_type\": \"restricted_usage\" }\n  ],\n  \"restricted_user_ids\": [{{buyer_frequent_id}}]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('code_restricted', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.5 Crear código con tope máximo de descuento",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CAPPED50-{{$timestamp}}\",\n  \"discount_type\": \"percent\",\n  \"discount_value\": 50,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\",\n  \"max_discount_amount\": 25\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('code_capped', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.6 Crear código en borrador (draft)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"DRAFT-{{$timestamp}}\",\n  \"discount_type\": \"fixed\",\n  \"discount_value\": 5,\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('queda en estado draft por defecto (RF-06)', () => pm.expect(json.status).to.eql('draft'));",
+                  "pm.collectionVariables.set('code_draft', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.7 Crear código ya vencido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"EXPIRED-{{$timestamp}}\",\n  \"discount_type\": \"fixed\",\n  \"discount_value\": 5,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2020-02-01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('code_expired', json.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.8 Intentar crear un código duplicado (debe fallar)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes", "host": ["{{base_url}}"], "path": ["promo-codes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_fixed}}\",\n  \"discount_type\": \"fixed\",\n  \"discount_value\": 10,\n  \"status\": \"active\",\n  \"starts_at\": \"2020-01-01\",\n  \"expires_at\": \"2030-01-01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test('el error apunta al campo code', () => pm.expect(json.errors).to.have.property('code'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Validar - casos exitosos",
+      "item": [
+        {
+          "name": "2.1 FIXED: descuento fijo sin superar el subtotal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_fixed}}\",\n  \"order\": { \"id\": \"ORD-DEMO-1\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('valid = true', () => pm.expect(json.valid).to.be.true);",
+                  "pm.test('descuento = 10', () => pm.expect(json.discount).to.eql(10));",
+                  "pm.test('total = 90', () => pm.expect(json.total).to.eql(90));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.2 PERCENT: cumple el monto mínimo requerido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_percent}}\",\n  \"order\": { \"id\": \"ORD-DEMO-2\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('valid = true', () => pm.expect(json.valid).to.be.true);",
+                  "pm.test('descuento = 20 (20% de 100)', () => pm.expect(json.discount).to.eql(20));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.3 TIERED: comprador frecuente alcanza el tramo del 10%",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_tiered}}\",\n  \"order\": { \"id\": \"ORD-DEMO-3\", \"subtotal\": 200, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_frequent_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('valid = true', () => pm.expect(json.valid).to.be.true);",
+                  "pm.test('descuento = 20 (10% de 200, comprador con 3 órdenes completadas)', () => pm.expect(json.discount).to.eql(20));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.4 CAPPED: el descuento se limita al tope máximo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_capped}}\",\n  \"order\": { \"id\": \"ORD-DEMO-4\", \"subtotal\": 200, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('sin tope serían 100 (50% de 200), pero el tope es 25', () => pm.expect(json.discount).to.eql(25));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.5 RESTRICTED: comprador autorizado en la lista",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_restricted}}\",\n  \"order\": { \"id\": \"ORD-DEMO-5\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_frequent_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('valid = true', () => pm.expect(json.valid).to.be.true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Validar - casos de error",
+      "item": [
+        {
+          "name": "3.1 Código inexistente -> invalid_code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"NO-EXISTE-000\",\n  \"order\": { \"id\": \"ORD-ERR-1\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test('valid = false', () => pm.expect(json.valid).to.be.false);",
+                  "pm.test(\"error = 'invalid_code'\", () => pm.expect(json.error).to.eql('invalid_code'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.2 Payload inválido -> errores de validación",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": { "mode": "raw", "raw": "{}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test('reporta campos faltantes', () => {",
+                  "  pm.expect(json.errors).to.have.property('code');",
+                  "  pm.expect(json.errors).to.have.property('order.subtotal');",
+                  "  pm.expect(json.errors).to.have.property('order.category_id');",
+                  "  pm.expect(json.errors).to.have.property('buyer.id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.3 Código en borrador -> invalid_code (RF-02)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_draft}}\",\n  \"order\": { \"id\": \"ORD-ERR-3\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test(\"error = 'invalid_code' (solo active pasa IsActiveRule)\", () => pm.expect(json.error).to.eql('invalid_code'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.4 Código vencido -> expired_coupon (RF-02)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_expired}}\",\n  \"order\": { \"id\": \"ORD-ERR-4\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test(\"error = 'expired_coupon'\", () => pm.expect(json.error).to.eql('expired_coupon'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.5 PERCENT sin alcanzar el mínimo -> min_amount_required (RF-03)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_percent}}\",\n  \"order\": { \"id\": \"ORD-ERR-5\", \"subtotal\": 10, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test(\"error = 'min_amount_required'\", () => pm.expect(json.error).to.eql('min_amount_required'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.6 RESTRICTED con comprador no autorizado -> restricted_usage (RF-03)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/promo-codes/validate", "host": ["{{base_url}}"], "path": ["promo-codes", "validate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code_restricted}}\",\n  \"order\": { \"id\": \"ORD-ERR-6\", \"subtotal\": 100, \"category_id\": {{category_id}} },\n  \"buyer\": { \"id\": {{buyer_new_id}} }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('422 Unprocessable Entity', () => pm.response.to.have.status(422));",
+                  "const json = pm.response.json();",
+                  "pm.test(\"error = 'restricted_usage'\", () => pm.expect(json.error).to.eql('restricted_usage'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
