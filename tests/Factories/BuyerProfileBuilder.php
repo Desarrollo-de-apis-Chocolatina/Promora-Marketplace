@@ -2,7 +2,7 @@
 
 namespace Tests\Factories;
 
-use App\Domain\ValueObjects\BuyerProfile;
+use App\Domain\PromoCode\ValueObjects\BuyerProfile;
 
 class BuyerProfileBuilder
 {

@@ -2,8 +2,8 @@
 
 namespace Tests\Factories;
 
-use App\Domain\Entities\PromoCode;
-use App\Domain\Enums\PromoCodeStatus;
+use App\Domain\PromoCode\PromoCode;
+use App\Domain\PromoCode\PromoCodeStatus;
 
 class PromoCodeBuilder
 {
@@ -35,6 +35,18 @@ class PromoCodeBuilder
     public function withStatus(PromoCodeStatus $status): self
     {
         $this->status = $status;
+        return $this;
+    }
+
+    public function withValidFrom(?string $validFrom): self
+    {
+        $this->validFrom = $validFrom;
+        return $this;
+    }
+
+    public function withValidUntil(?string $validUntil): self
+    {
+        $this->validUntil = $validUntil;
         return $this;
     }
 

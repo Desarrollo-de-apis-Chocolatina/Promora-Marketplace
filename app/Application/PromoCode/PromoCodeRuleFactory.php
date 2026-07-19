@@ -2,7 +2,7 @@
 
 namespace App\Application\PromoCode;
 
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
+use App\Domain\PromoCode\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\PromoCode\Contracts\RuleSpecificationInterface;
 use App\Domain\PromoCode\Validation\Configurable\EligibleCategoriesSpec;
 use App\Domain\PromoCode\Validation\Configurable\FirstOrderOnlySpec;

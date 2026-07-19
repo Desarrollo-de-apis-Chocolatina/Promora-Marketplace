@@ -3,7 +3,7 @@
 namespace Tests\Unit\Application\PromoCode;
 
 use App\Application\PromoCode\PromoCodeRuleFactory;
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
+use App\Domain\PromoCode\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\PromoCode\Validation\Configurable\MinPurchaseAmountSpec;
 use App\Domain\PromoCode\Validation\Configurable\UserUsageLimitSpec;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +23,8 @@ class PromoCodeRuleFactoryTest extends TestCase
         $rules = $factory->buildRules($config);
 
         $this->assertCount(2, $rules);
-        $this->assertInstanceOf(MinPurchaseAmountRule::class, $rules[0]);
-        $this->assertInstanceOf(UserUsageLimitRule::class, $rules[1]);
+        $this->assertInstanceOf(MinPurchaseAmountSpec::class, $rules[0]);
+        $this->assertInstanceOf(UserUsageLimitSpec::class, $rules[1]);
     }
 
     public function test_it_throws_exception_for_unknown_rule()

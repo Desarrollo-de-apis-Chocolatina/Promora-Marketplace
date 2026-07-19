@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\PromoCode\Validation\Configurable;
 
-use App\Domain\Contracts\PromoCodeRepositoryInterface;
+use App\Domain\PromoCode\Contracts\PromoCodeRepositoryInterface;
 use App\Domain\PromoCode\Validation\Configurable\RestrictedUsageSpec;
 use PHPUnit\Framework\TestCase;
 use Tests\Factories\BuyerProfileBuilder;

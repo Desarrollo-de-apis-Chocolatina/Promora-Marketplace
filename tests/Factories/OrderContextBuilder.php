@@ -2,8 +2,8 @@
 
 namespace Tests\Factories;
 
-use App\Domain\ValueObjects\BuyerProfile;
-use App\Domain\ValueObjects\OrderContext;
+use App\Domain\PromoCode\ValueObjects\BuyerProfile;
+use App\Domain\PromoCode\ValueObjects\OrderContext;
 
 class OrderContextBuilder
 {
