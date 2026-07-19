@@ -27,6 +27,7 @@ class PromoCodeController extends Controller
             (float) $data['order']['subtotal'],
             $data['order']['category_id'],
             $data['buyer']['id'],
+            $data['current_orders'] ?? [],
         );
 
         return response()->json([

@@ -24,6 +24,7 @@ interface PromoCodeRepositoryInterface
         float $subtotal,
         string|int $categoryId,
         string|int $buyerId,
+        array $currentOrders = [],
     ): OrderContext;
 
     /**

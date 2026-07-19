@@ -26,6 +26,7 @@ class ValidatePromoCodeRequest extends FormRequest
             'order.category_id' => ['required', 'integer', 'exists:service_categories,id'],
             'buyer' => ['required', 'array'],
             'buyer.id' => ['required', 'integer', 'exists:buyers,id'],
+            'current_orders' => ['sometimes', 'array'],
         ];
     }
 }

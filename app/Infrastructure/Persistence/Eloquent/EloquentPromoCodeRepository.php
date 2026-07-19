@@ -63,6 +63,7 @@ final class EloquentPromoCodeRepository implements PromoCodeRepositoryInterface
         float $subtotal,
         string|int $categoryId,
         string|int $buyerId,
+        array $currentOrders = [],
     ): OrderContext {
         $model = EloquentPromoCode::query()->where('code', $promoCode->code)->first();
         $promoCodeId = $model?->id;
@@ -70,9 +71,13 @@ final class EloquentPromoCodeRepository implements PromoCodeRepositoryInterface
         $completedOrdersCount = Order::query()
             ->where('buyer_id', $buyerId)
             ->where('order_status', 'completed')
+            ->when(!empty($currentOrders), fn ($q) => $q->whereNotIn('id', $currentOrders))
             ->count();
 
-        $isFirstOrder = ! Order::query()->where('buyer_id', $buyerId)->exists();
+        $isFirstOrder = ! Order::query()
+            ->where('buyer_id', $buyerId)
+            ->when(!empty($currentOrders), fn ($q) => $q->whereNotIn('id', $currentOrders))
+            ->exists();
 
         $paidPromoCodeUsages = $promoCodeId !== null
             ? PromoCodeUsage::query()

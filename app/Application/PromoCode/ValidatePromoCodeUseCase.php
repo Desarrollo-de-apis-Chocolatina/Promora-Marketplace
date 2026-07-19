@@ -27,6 +27,7 @@ final class ValidatePromoCodeUseCase
         float $subtotal,
         string|int $categoryId,
         string|int $buyerId,
+        array $currentOrders = [],
     ): ValidatePromoCodeResult {
         $promoCode = $this->repository->findByCode($code);
 
@@ -36,7 +37,7 @@ final class ValidatePromoCodeUseCase
             return ValidatePromoCodeResult::failure($fixedResult->errorCode, $subtotal);
         }
 
-        $context = $this->repository->buildOrderContext($promoCode, $orderId, $subtotal, $categoryId, $buyerId);
+        $context = $this->repository->buildOrderContext($promoCode, $orderId, $subtotal, $categoryId, $buyerId, $currentOrders);
 
         $config = $this->repository->getActiveRuleConfig($code);
         $rules = $this->ruleFactory->buildRules($config);
