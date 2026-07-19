@@ -11,8 +11,8 @@ class IsActiveRuleTest extends TestCase
 {
     public function test_it_blocks_when_promo_code_is_paused()
     {
-        $rule = new IsActiveRule();
-        $code = (new PromoCodeBuilder())->withStatus(PromoCodeStatus::PAUSED)->build();
+        $rule = new IsActiveRule;
+        $code = (new PromoCodeBuilder)->withStatus(PromoCodeStatus::PAUSED)->build();
 
         $result = $rule->validate($code);
 
@@ -22,8 +22,8 @@ class IsActiveRuleTest extends TestCase
 
     public function test_it_blocks_when_promo_code_is_draft()
     {
-        $rule = new IsActiveRule();
-        $code = (new PromoCodeBuilder())->withStatus(PromoCodeStatus::DRAFT)->build();
+        $rule = new IsActiveRule;
+        $code = (new PromoCodeBuilder)->withStatus(PromoCodeStatus::DRAFT)->build();
 
         $result = $rule->validate($code);
 
@@ -33,8 +33,8 @@ class IsActiveRuleTest extends TestCase
 
     public function test_it_allows_when_promo_code_is_active()
     {
-        $rule = new IsActiveRule();
-        $code = (new PromoCodeBuilder())->withStatus(PromoCodeStatus::ACTIVE)->build();
+        $rule = new IsActiveRule;
+        $code = (new PromoCodeBuilder)->withStatus(PromoCodeStatus::ACTIVE)->build();
 
         $result = $rule->validate($code);
 

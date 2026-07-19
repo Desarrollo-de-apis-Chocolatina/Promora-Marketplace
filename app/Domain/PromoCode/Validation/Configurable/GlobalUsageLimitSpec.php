@@ -11,8 +11,7 @@ class GlobalUsageLimitSpec implements RuleSpecificationInterface
 {
     public function __construct(
         private readonly int $limit
-    ) {
-    }
+    ) {}
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
@@ -25,4 +24,3 @@ class GlobalUsageLimitSpec implements RuleSpecificationInterface
         return ValidationResult::valid();
     }
 }
-

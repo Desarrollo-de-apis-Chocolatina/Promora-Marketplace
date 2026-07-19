@@ -13,11 +13,10 @@ class FirstOrderOnlySpec implements RuleSpecificationInterface
     {
         $buyerProfile = $order->getOrderContext()->buyerProfile;
 
-        if (!$buyerProfile->isFirstOrder) {
+        if (! $buyerProfile->isFirstOrder) {
             return ValidationResult::invalid('code_already_used');
         }
 
         return ValidationResult::valid();
     }
 }
-

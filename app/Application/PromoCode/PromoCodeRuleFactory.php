@@ -16,11 +16,9 @@ class PromoCodeRuleFactory
 {
     public function __construct(
         private readonly PromoCodeRepositoryInterface $repository
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array $config
      * @return RuleSpecificationInterface[]
      */
     public function buildRules(array $config): array
@@ -31,11 +29,11 @@ class PromoCodeRuleFactory
             $rules[] = match ($ruleKey) {
                 'min_purchase_amount' => new MinPurchaseAmountSpec((float) $params['minAmount']),
                 'eligible_categories' => new EligibleCategoriesSpec((array) $params['eligibleCategoryIds']),
-                'first_order_only'    => new FirstOrderOnlySpec(),
-                'user_usage_limit'    => new UserUsageLimitSpec((int) $params['limit']),
-                'global_usage_limit'  => new GlobalUsageLimitSpec((int) $params['limit']),
+                'first_order_only' => new FirstOrderOnlySpec,
+                'user_usage_limit' => new UserUsageLimitSpec((int) $params['limit']),
+                'global_usage_limit' => new GlobalUsageLimitSpec((int) $params['limit']),
                 'global_amount_limit' => new GlobalAmountLimitSpec((float) $params['limit']),
-                'restricted_usage'    => new RestrictedUsageSpec($this->repository),
+                'restricted_usage' => new RestrictedUsageSpec($this->repository),
                 default => throw new \InvalidArgumentException("Regla desconocida: $ruleKey"),
             };
         }
@@ -43,4 +41,3 @@ class PromoCodeRuleFactory
         return $rules;
     }
 }
-

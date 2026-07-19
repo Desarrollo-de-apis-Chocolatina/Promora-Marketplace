@@ -11,8 +11,7 @@ class MinPurchaseAmountSpec implements RuleSpecificationInterface
 {
     public function __construct(
         private readonly float $minAmount
-    ) {
-    }
+    ) {}
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
@@ -23,4 +22,3 @@ class MinPurchaseAmountSpec implements RuleSpecificationInterface
         return ValidationResult::valid();
     }
 }
-

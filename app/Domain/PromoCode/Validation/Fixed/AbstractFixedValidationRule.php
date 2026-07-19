@@ -23,7 +23,7 @@ abstract class AbstractFixedValidationRule implements FixedValidationRuleInterfa
     {
         $result = $this->check($promoCode);
 
-        if (!$result->isValid) {
+        if (! $result->isValid) {
             return $result;
         }
 

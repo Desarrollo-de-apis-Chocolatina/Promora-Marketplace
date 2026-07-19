@@ -4,34 +4,37 @@ declare(strict_types=1);
 
 namespace App\Domain\PromoCode\ValueObjects;
 
-final readonly class OrderContext
+use App\Domain\PromoCode\Contracts\OrderableInterface;
+
+final readonly class OrderContext implements OrderableInterface
 {
     public string|int $orderId;
+
     public float $subtotal;
+
     public string|int $categoryId;
+
     /**
      * @var array<string|int>
      */
     public array $categoryAncestors;
+
     public BuyerProfile $buyerProfile;
+
     public int $paidPromoCodeUsages;
+
     public int $globalPaidUsages;
+
     public float $globalDiscountAmount;
+
     /**
      * @var array<mixed>
      */
     public array $currentOrders;
 
     /**
-     * @param string|int $orderId
-     * @param float $subtotal
-     * @param string|int $categoryId
-     * @param array<string|int> $categoryAncestors
-     * @param BuyerProfile $buyerProfile
-     * @param int $paidPromoCodeUsages
-     * @param int $globalPaidUsages
-     * @param float $globalDiscountAmount
-     * @param array<mixed> $currentOrders
+     * @param  array<string|int>  $categoryAncestors
+     * @param  array<mixed>  $currentOrders
      */
     public function __construct(
         string|int $orderId,
@@ -54,5 +57,20 @@ final readonly class OrderContext
         $this->paidPromoCodeUsages = max(0, $paidPromoCodeUsages);
         $this->globalPaidUsages = max(0, $globalPaidUsages);
         $this->globalDiscountAmount = max(0.0, $globalDiscountAmount);
+    }
+
+    public function getId(): string|int
+    {
+        return $this->orderId;
+    }
+
+    public function getSubtotal(): float
+    {
+        return $this->subtotal;
+    }
+
+    public function getOrderContext(): OrderContext
+    {
+        return $this;
     }
 }

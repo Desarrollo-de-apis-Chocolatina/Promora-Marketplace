@@ -13,8 +13,8 @@ class GlobalUsageLimitSpecTest extends TestCase
     public function test_it_blocks_when_global_usage_limit_is_reached()
     {
         $rule = new GlobalUsageLimitSpec(100);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->withGlobalPaidUsages(100)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->withGlobalPaidUsages(100)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -26,8 +26,8 @@ class GlobalUsageLimitSpecTest extends TestCase
     public function test_it_allows_when_global_usage_limit_is_not_reached()
     {
         $rule = new GlobalUsageLimitSpec(100);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->withGlobalPaidUsages(99)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->withGlobalPaidUsages(99)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -36,4 +36,3 @@ class GlobalUsageLimitSpecTest extends TestCase
         $this->assertNull($result->errorCode);
     }
 }
-

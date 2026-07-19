@@ -9,8 +9,7 @@ final readonly class ValidationResult
     private function __construct(
         public bool $isValid,
         public ?string $errorCode = null,
-    ) {
-    }
+    ) {}
 
     public static function valid(): self
     {

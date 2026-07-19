@@ -11,8 +11,7 @@ class OrderMock implements OrderableInterface
         private float $subtotal,
         private OrderContext $context,
         private string|int $id = 1
-    ) {
-    }
+    ) {}
 
     public function getId(): string|int
     {

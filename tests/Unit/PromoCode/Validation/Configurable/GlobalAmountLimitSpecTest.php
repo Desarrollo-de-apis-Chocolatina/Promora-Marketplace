@@ -13,8 +13,8 @@ class GlobalAmountLimitSpecTest extends TestCase
     public function test_it_blocks_when_global_amount_limit_is_reached()
     {
         $rule = new GlobalAmountLimitSpec(1000.0);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->withGlobalDiscountAmount(1000.0)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->withGlobalDiscountAmount(1000.0)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -26,8 +26,8 @@ class GlobalAmountLimitSpecTest extends TestCase
     public function test_it_allows_when_global_amount_limit_is_not_reached()
     {
         $rule = new GlobalAmountLimitSpec(1000.0);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->withGlobalDiscountAmount(999.0)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->withGlobalDiscountAmount(999.0)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -36,4 +36,3 @@ class GlobalAmountLimitSpecTest extends TestCase
         $this->assertNull($result->errorCode);
     }
 }
-

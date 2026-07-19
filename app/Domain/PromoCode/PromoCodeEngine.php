@@ -11,14 +11,14 @@ use App\Domain\PromoCode\ValueObjects\ValidationResult;
 final class PromoCodeEngine
 {
     /**
-     * @param RuleSpecificationInterface[] $specifications
+     * @param  RuleSpecificationInterface[]  $specifications
      */
     public function validate(PromoCode $code, OrderableInterface $order, array $specifications): ValidationResult
     {
         foreach ($specifications as $specification) {
             $result = $specification->isSatisfiedBy($code, $order);
 
-            if (!$result->isValid) {
+            if (! $result->isValid) {
                 return $result;
             }
         }

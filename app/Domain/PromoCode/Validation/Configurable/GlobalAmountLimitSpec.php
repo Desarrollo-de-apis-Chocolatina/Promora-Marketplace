@@ -11,8 +11,7 @@ class GlobalAmountLimitSpec implements RuleSpecificationInterface
 {
     public function __construct(
         private readonly float $limit
-    ) {
-    }
+    ) {}
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
@@ -25,4 +24,3 @@ class GlobalAmountLimitSpec implements RuleSpecificationInterface
         return ValidationResult::valid();
     }
 }
-

@@ -10,12 +10,11 @@ use App\Domain\PromoCode\ValueObjects\ValidationResult;
 class EligibleCategoriesSpec implements RuleSpecificationInterface
 {
     /**
-     * @param array<int|string> $eligibleCategoryIds
+     * @param  array<int|string>  $eligibleCategoryIds
      */
     public function __construct(
         private readonly array $eligibleCategoryIds
-    ) {
-    }
+    ) {}
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
@@ -27,17 +26,16 @@ class EligibleCategoriesSpec implements RuleSpecificationInterface
         $isEligible = false;
 
         foreach ($allOrderCategories as $catId) {
-            if (in_array($catId, $this->eligibleCategoryIds, true) || in_array((string)$catId, $this->eligibleCategoryIds, true) || in_array((int)$catId, $this->eligibleCategoryIds, true)) {
+            if (in_array($catId, $this->eligibleCategoryIds, true) || in_array((string) $catId, $this->eligibleCategoryIds, true) || in_array((int) $catId, $this->eligibleCategoryIds, true)) {
                 $isEligible = true;
                 break;
             }
         }
 
-        if (!$isEligible) {
+        if (! $isEligible) {
             return ValidationResult::invalid('invalid_code');
         }
 
         return ValidationResult::valid();
     }
 }
-

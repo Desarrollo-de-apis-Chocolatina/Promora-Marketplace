@@ -10,9 +10,8 @@ use App\Domain\PromoCode\ValueObjects\ValidationResult;
 final class WithinValidityPeriodRule extends AbstractFixedValidationRule
 {
     public function __construct(
-        private readonly \DateTimeImmutable $now = new \DateTimeImmutable()
-    ) {
-    }
+        private readonly \DateTimeImmutable $now = new \DateTimeImmutable
+    ) {}
 
     protected function check(?PromoCode $promoCode): ValidationResult
     {

@@ -17,7 +17,7 @@ class PromoCodeRuleFactoryTest extends TestCase
 
         $config = [
             'min_purchase_amount' => ['minAmount' => 100.0],
-            'user_usage_limit' => ['limit' => 5]
+            'user_usage_limit' => ['limit' => 5],
         ];
 
         $rules = $factory->buildRules($config);
@@ -38,4 +38,3 @@ class PromoCodeRuleFactoryTest extends TestCase
         $factory->buildRules(['unknown_rule' => []]);
     }
 }
-

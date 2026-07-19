@@ -7,8 +7,11 @@ namespace App\Domain\PromoCode\ValueObjects;
 final readonly class BuyerProfile
 {
     public string|int $buyerId;
+
     public int $completedOrdersCount;
+
     public int $paidPromoCodeUsages;
+
     public bool $isFirstOrder;
 
     public function __construct(

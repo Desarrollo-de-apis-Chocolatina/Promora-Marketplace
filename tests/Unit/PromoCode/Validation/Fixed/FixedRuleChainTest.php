@@ -15,9 +15,9 @@ class FixedRuleChainTest extends TestCase
     private function makeChain(\DateTimeImmutable $now): FixedRuleChain
     {
         return new FixedRuleChain(
-            new CodeExistsRule(),
+            new CodeExistsRule,
             new WithinValidityPeriodRule($now),
-            new IsActiveRule()
+            new IsActiveRule
         );
     }
 
@@ -34,7 +34,7 @@ class FixedRuleChainTest extends TestCase
     public function test_it_blocks_when_code_is_expired_even_if_status_is_active()
     {
         $chain = $this->makeChain(new \DateTimeImmutable('2026-07-18'));
-        $code = (new PromoCodeBuilder())
+        $code = (new PromoCodeBuilder)
             ->withStatus(PromoCodeStatus::ACTIVE)
             ->withValidUntil('2026-07-01')
             ->build();
@@ -48,7 +48,7 @@ class FixedRuleChainTest extends TestCase
     public function test_it_blocks_when_code_is_paused_even_if_within_validity_period()
     {
         $chain = $this->makeChain(new \DateTimeImmutable('2026-07-18'));
-        $code = (new PromoCodeBuilder())->withStatus(PromoCodeStatus::PAUSED)->build();
+        $code = (new PromoCodeBuilder)->withStatus(PromoCodeStatus::PAUSED)->build();
 
         $result = $chain->validate($code);
 
@@ -59,7 +59,7 @@ class FixedRuleChainTest extends TestCase
     public function test_it_allows_when_code_exists_is_within_validity_and_is_active()
     {
         $chain = $this->makeChain(new \DateTimeImmutable('2026-07-18'));
-        $code = (new PromoCodeBuilder())
+        $code = (new PromoCodeBuilder)
             ->withStatus(PromoCodeStatus::ACTIVE)
             ->withValidFrom('2026-07-01')
             ->withValidUntil('2026-08-01')

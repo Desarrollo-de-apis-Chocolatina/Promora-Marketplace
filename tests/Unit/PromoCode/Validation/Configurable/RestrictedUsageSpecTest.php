@@ -18,9 +18,9 @@ class RestrictedUsageSpecTest extends TestCase
         $repository->method('isUserRestricted')->willReturn(false);
 
         $rule = new RestrictedUsageSpec($repository);
-        $code = (new PromoCodeBuilder())->build();
-        $buyer = (new BuyerProfileBuilder())->withId(5)->build();
-        $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $buyer = (new BuyerProfileBuilder)->withId(5)->build();
+        $context = (new OrderContextBuilder)->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -35,9 +35,9 @@ class RestrictedUsageSpecTest extends TestCase
         $repository->method('isUserRestricted')->willReturn(true);
 
         $rule = new RestrictedUsageSpec($repository);
-        $code = (new PromoCodeBuilder())->build();
-        $buyer = (new BuyerProfileBuilder())->withId(5)->build();
-        $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
+        $code = (new PromoCodeBuilder)->build();
+        $buyer = (new BuyerProfileBuilder)->withId(5)->build();
+        $context = (new OrderContextBuilder)->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -46,4 +46,3 @@ class RestrictedUsageSpecTest extends TestCase
         $this->assertNull($result->errorCode);
     }
 }
-

@@ -12,7 +12,7 @@ class WithinValidityPeriodRuleTest extends TestCase
     {
         $now = new \DateTimeImmutable('2026-07-18');
         $rule = new WithinValidityPeriodRule($now);
-        $code = (new PromoCodeBuilder())->withValidFrom('2026-08-01')->build();
+        $code = (new PromoCodeBuilder)->withValidFrom('2026-08-01')->build();
 
         $result = $rule->validate($code);
 
@@ -24,7 +24,7 @@ class WithinValidityPeriodRuleTest extends TestCase
     {
         $now = new \DateTimeImmutable('2026-07-18');
         $rule = new WithinValidityPeriodRule($now);
-        $code = (new PromoCodeBuilder())->withValidUntil('2026-07-01')->build();
+        $code = (new PromoCodeBuilder)->withValidUntil('2026-07-01')->build();
 
         $result = $rule->validate($code);
 
@@ -36,7 +36,7 @@ class WithinValidityPeriodRuleTest extends TestCase
     {
         $now = new \DateTimeImmutable('2026-07-18');
         $rule = new WithinValidityPeriodRule($now);
-        $code = (new PromoCodeBuilder())
+        $code = (new PromoCodeBuilder)
             ->withValidFrom('2026-07-01')
             ->withValidUntil('2026-08-01')
             ->build();
@@ -49,8 +49,8 @@ class WithinValidityPeriodRuleTest extends TestCase
 
     public function test_it_allows_when_promo_code_has_no_date_bounds()
     {
-        $rule = new WithinValidityPeriodRule(new \DateTimeImmutable());
-        $code = (new PromoCodeBuilder())->build();
+        $rule = new WithinValidityPeriodRule(new \DateTimeImmutable);
+        $code = (new PromoCodeBuilder)->build();
 
         $result = $rule->validate($code);
 

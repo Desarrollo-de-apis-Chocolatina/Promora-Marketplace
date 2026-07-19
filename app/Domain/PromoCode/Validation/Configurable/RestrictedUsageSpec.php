@@ -12,8 +12,7 @@ class RestrictedUsageSpec implements RuleSpecificationInterface
 {
     public function __construct(
         private readonly PromoCodeRepositoryInterface $repository
-    ) {
-    }
+    ) {}
 
     public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
     {
@@ -21,11 +20,10 @@ class RestrictedUsageSpec implements RuleSpecificationInterface
 
         $isRestricted = $this->repository->isUserRestricted($code->code, $userId);
 
-        if (!$isRestricted) {
+        if (! $isRestricted) {
             return ValidationResult::invalid('restricted_usage');
         }
 
         return ValidationResult::valid();
     }
 }
-

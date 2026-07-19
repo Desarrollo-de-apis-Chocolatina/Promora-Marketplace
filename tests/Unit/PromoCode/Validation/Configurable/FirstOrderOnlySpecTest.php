@@ -13,10 +13,10 @@ class FirstOrderOnlySpecTest extends TestCase
 {
     public function test_it_blocks_when_it_is_not_first_order()
     {
-        $rule = new FirstOrderOnlySpec();
-        $code = (new PromoCodeBuilder())->build();
-        $buyer = (new BuyerProfileBuilder())->firstOrder(false)->build();
-        $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
+        $rule = new FirstOrderOnlySpec;
+        $code = (new PromoCodeBuilder)->build();
+        $buyer = (new BuyerProfileBuilder)->firstOrder(false)->build();
+        $context = (new OrderContextBuilder)->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -27,10 +27,10 @@ class FirstOrderOnlySpecTest extends TestCase
 
     public function test_it_allows_when_it_is_first_order()
     {
-        $rule = new FirstOrderOnlySpec();
-        $code = (new PromoCodeBuilder())->build();
-        $buyer = (new BuyerProfileBuilder())->firstOrder(true)->build();
-        $context = (new OrderContextBuilder())->withBuyerProfile($buyer)->build();
+        $rule = new FirstOrderOnlySpec;
+        $code = (new PromoCodeBuilder)->build();
+        $buyer = (new BuyerProfileBuilder)->firstOrder(true)->build();
+        $context = (new OrderContextBuilder)->withBuyerProfile($buyer)->build();
         $order = new OrderMock(100.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -39,4 +39,3 @@ class FirstOrderOnlySpecTest extends TestCase
         $this->assertNull($result->errorCode);
     }
 }
-

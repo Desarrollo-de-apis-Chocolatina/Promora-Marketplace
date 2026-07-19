@@ -16,12 +16,12 @@ class PromoCodeEngineTest extends TestCase
 {
     private function makeSpec(bool $satisfied, string $errorCode = 'some_error'): RuleSpecificationInterface
     {
-        return new class($satisfied, $errorCode) implements RuleSpecificationInterface {
+        return new class($satisfied, $errorCode) implements RuleSpecificationInterface
+        {
             public function __construct(
                 private readonly bool $satisfied,
                 private readonly string $errorCode
-            ) {
-            }
+            ) {}
 
             public function isSatisfiedBy(PromoCode $code, OrderableInterface $order): ValidationResult
             {
@@ -34,9 +34,9 @@ class PromoCodeEngineTest extends TestCase
 
     public function test_it_is_valid_when_there_are_no_specifications()
     {
-        $engine = new PromoCodeEngine();
-        $code = (new PromoCodeBuilder())->build();
-        $order = new OrderMock(100.0, (new OrderContextBuilder())->build());
+        $engine = new PromoCodeEngine;
+        $code = (new PromoCodeBuilder)->build();
+        $order = new OrderMock(100.0, (new OrderContextBuilder)->build());
 
         $result = $engine->validate($code, $order, []);
 
@@ -45,9 +45,9 @@ class PromoCodeEngineTest extends TestCase
 
     public function test_it_is_valid_when_every_specification_is_satisfied()
     {
-        $engine = new PromoCodeEngine();
-        $code = (new PromoCodeBuilder())->build();
-        $order = new OrderMock(100.0, (new OrderContextBuilder())->build());
+        $engine = new PromoCodeEngine;
+        $code = (new PromoCodeBuilder)->build();
+        $order = new OrderMock(100.0, (new OrderContextBuilder)->build());
 
         $result = $engine->validate($code, $order, [
             $this->makeSpec(true),
@@ -59,9 +59,9 @@ class PromoCodeEngineTest extends TestCase
 
     public function test_it_blocks_on_the_first_unsatisfied_specification()
     {
-        $engine = new PromoCodeEngine();
-        $code = (new PromoCodeBuilder())->build();
-        $order = new OrderMock(100.0, (new OrderContextBuilder())->build());
+        $engine = new PromoCodeEngine;
+        $code = (new PromoCodeBuilder)->build();
+        $order = new OrderMock(100.0, (new OrderContextBuilder)->build());
 
         $result = $engine->validate($code, $order, [
             $this->makeSpec(true),

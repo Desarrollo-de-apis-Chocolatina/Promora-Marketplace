@@ -13,8 +13,8 @@ class MinPurchaseAmountSpecTest extends TestCase
     public function test_it_blocks_when_subtotal_is_less_than_minimum()
     {
         $rule = new MinPurchaseAmountSpec(50.0);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->build();
         $order = new OrderMock(30.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -26,8 +26,8 @@ class MinPurchaseAmountSpecTest extends TestCase
     public function test_it_allows_when_subtotal_is_greater_or_equal_to_minimum()
     {
         $rule = new MinPurchaseAmountSpec(50.0);
-        $code = (new PromoCodeBuilder())->build();
-        $context = (new OrderContextBuilder())->build();
+        $code = (new PromoCodeBuilder)->build();
+        $context = (new OrderContextBuilder)->build();
         $order = new OrderMock(50.0, $context);
 
         $result = $rule->isSatisfiedBy($code, $order);
@@ -36,4 +36,3 @@ class MinPurchaseAmountSpecTest extends TestCase
         $this->assertNull($result->errorCode);
     }
 }
-
