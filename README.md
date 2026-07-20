@@ -1,101 +1,137 @@
 # Promora Marketplace — PromoCodeEngine
 
-Motor de códigos promocionales para Promora Marketplace, desarrollado como proyecto del
-Examen Final del curso de Patrones de Diseño (TDR-PROMO-001).
+Motor de códigos promocionales para Promora Marketplace. El dominio está implementado en
+PHP puro (sin dependencia directa de Laravel) y se integra con Laravel en la capa de
+infraestructura.
 
-Permite validar la elegibilidad de un código promocional para una orden, calcular el
-descuento correspondiente y operar con cualquier entidad de orden mediante contratos, sin
-depender de una implementación concreta. Las reglas de cada promoción se configuran desde
-la base de datos en tiempo de ejecución, sin requerir cambios en el código ni un nuevo
-despliegue.
+## Tabla de contenidos
 
-## Stack tecnológico
-
-- **PHP** 8.3
-- **Laravel** 13
-- **SQLite** (persistencia real, sin Docker; los tests corren contra una base en memoria)
-- **PHPUnit** (unit + feature, con TDD y factories)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Tests](#tests)
+- [API](#api)
+- [Configuración](#configuración)
+- [Troubleshooting](#troubleshooting)
+- [Contribuir](#contribuir)
+- [Recursos](#recursos)
 
 ## Requisitos
 
 - PHP >= 8.3
 - Composer
+- Node.js + npm (opcional, solo para compilar assets con Vite)
 
 ## Instalación
+
+Clonar el repositorio y moverse al directorio del proyecto, luego:
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
+```
+
+Crear la base de datos SQLite para desarrollo (necesario para levantar la app con
+`php artisan serve` y probar los endpoints, por ejemplo desde Postman; los tests no lo
+necesitan porque usan `:memory:`):
+
+```bash
+# Linux / macOS
+mkdir -p database
+touch database/database.sqlite
+```
+
+```powershell
+# Windows PowerShell
+New-Item -ItemType Directory -Force database
+if (-not (Test-Path database/database.sqlite)) { New-Item -ItemType File database/database.sqlite }
+```
+
+Ejecutar las migraciones:
+
+```bash
 php artisan migrate
 ```
 
-## Levantar el proyecto
+Instalar dependencias de Node (necesario si vas a usar `composer run dev`, ya que ese comando
+levanta Vite además del servidor):
+
+```bash
+npm install
+```
+
+> Alternativa: `composer run setup` ejecuta todo lo anterior de una vez (install PHP,
+> `.env`, `key:generate`, migraciones, `npm install` y build de assets).
+
+## Uso
+
+Levantar el servidor de desarrollo:
 
 ```bash
 php artisan serve
 ```
 
-## Correr los tests
+Esto ya es suficiente para probar la API (por ejemplo, con la colección de Postman): las
+rutas de `routes/api.php` devuelven JSON directamente y no dependen de Vite.
+
+`npm run dev` solo hace falta si además vas a abrir la vista `resources/views/welcome.blade.php`
+en el navegador, ya que es la única que carga assets (CSS/JS) a través de Vite. Si la necesitás,
+corré esto en otra terminal:
 
 ```bash
-php artisan test                    # todos los tests
-php artisan test --testsuite=Unit   # solo unitarios (dominio, sin base de datos)
-php artisan test --testsuite=Feature # solo de integración (endpoints)
+npm run dev
 ```
 
-## Arquitectura
+## Tests
 
-El sistema sigue el estilo **MVC + DIP mínimo**: el dominio (`PromoCodeEngine` y todo lo que
-lo rodea) se implementa en PHP puro, sin depender de Laravel, Eloquent ni HTTP. Laravel se
-integra como capa de infraestructura sobre ese dominio. La inversión de dependencias se
-concentra en dos contratos: `OrderableInterface` (para no acoplarse a una orden concreta) y
-`PromoCodeRepositoryInterface` (para no acoplarse a Eloquent/MySQL/SQLite).
+La suite está organizada en `Unit` y `Feature`. PHPUnit está configurado para usar SQLite
+en memoria (ver `phpunit.xml`), así que no hace falta configurar una base de datos aparte.
 
-### Estructura de carpetas
+Ejecutar toda la suite:
 
-```
-app/
-├── Application/PromoCode/        Casos de uso y Factory de reglas
-├── Domain/PromoCode/             Dominio en PHP puro (sin dependencias de Laravel)
-│   ├── Contracts/                Interfaces del dominio (los puertos del DIP)
-│   ├── Discount/                 Estrategias de descuento (Strategy) + tope post-cálculo
-│   ├── Validation/Fixed/         Validaciones fijas (Chain of Responsibility)
-│   ├── Validation/Configurable/  Reglas configurables (Specification)
-│   └── ValueObjects/             OrderContext, BuyerProfile, ValidationResult
-├── Http/                         Controllers y Requests (endpoints)
-├── Infrastructure/Persistence/   Adaptador Eloquent del repositorio (implementa el puerto)
-├── Models/                       Modelos Eloquent
-└── Providers/                    Bind del puerto de persistencia a su adaptador
-
-database/
-├── migrations/                   Esquema de las 8 tablas del dominio
-└── factories/                    Factories Eloquent para los tests Feature
-
-tests/
-├── Unit/PromoCode/                Tests del dominio (sin base de datos)
-├── Feature/                       Tests de integración de los endpoints
-└── Factories/                     Builders de dominio en PHP puro (sin Eloquent)
+```bash
+php artisan test
 ```
 
-## Patrones de diseño aplicados
+Ejecutar solo un grupo:
 
-| Patrón | Dónde | Por qué |
-|---|---|---|
-| **Chain of Responsibility** | `Domain/PromoCode/Validation/Fixed` | Las validaciones fijas (existencia, vigencia, estado activo) se ejecutan en orden estricto y cortan al primer fallo. |
-| **Specification** | `Domain/PromoCode/Validation/Configurable` | Cada regla configurable es una especificación autocontenida; el motor las evalúa sin conocer su tipo concreto. |
-| **Factory** | `Application/PromoCode/PromoCodeRuleFactory` | Traduce la configuración de reglas leída en runtime a instancias de `RuleSpecificationInterface`. |
-| **Strategy** | `Domain/PromoCode/Discount` | Cada tipo de descuento (fixed, percent, tiered) encapsula su propio algoritmo de cálculo. |
+```bash
+php artisan test --testsuite=Unit
+php artisan test --testsuite=Feature
+```
 
-## Endpoints
+## API
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| `POST` | `/api/promo-codes` | Crea un código promocional (con sus reglas y, si aplica, sus tramos). |
-| `POST` | `/api/promo-codes/validate` | Valida un código contra una orden y devuelve el descuento calculado. |
+Rutas principales (ver `routes/api.php`):
 
-## Documentación del diseño
+| Método | Ruta                        | Descripción                                                |
+|--------|-----------------------------|-------------------------------------------------------------|
+| POST   | `/api/promo-codes`          | Crea un código promocional (incluye reglas y tramos si aplica). |
+| POST   | `/api/promo-codes/validate` | Valida un código frente a una orden y devuelve el descuento. |
 
-La justificación completa de la arquitectura, los patrones seleccionados/descartados, los
-principios SOLID aplicados y los trade-offs se documentan en el ASD del equipo (fuera de
-este repositorio).
+Para pruebas manuales hay una colección Postman en `postman/`
+(`postman/Promora-PromoCodeEngine.postman_collection.json`).
+
+## Configuración
+
+- Base de datos por defecto en desarrollo: `database/database.sqlite` (se puede cambiar
+  editando `.env`).
+- Los tests usan `DB_CONNECTION=sqlite` y `DB_DATABASE=:memory:` (ver `phpunit.xml`).
+
+## Troubleshooting
+
+- **Las migraciones fallan por permisos o archivo inexistente**: confirmar que existe
+  `database/database.sqlite` y que el usuario tiene permisos de escritura sobre esa carpeta.
+- **npm falla al compilar assets**: ejecutar `npm install` y luego `npm run build`.
+
+## Contribuir
+
+1. Crear un branch con el cambio propuesto.
+2. Ejecutar los tests y confirmar que pasan.
+3. Abrir un PR con una descripción clara.
+
+## Recursos
+
+- Colección Postman: `postman/Promora-PromoCodeEngine.postman_collection.json`
+- Rutas: `routes/api.php`
